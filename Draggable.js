@@ -89,12 +89,25 @@ export default function Draggable(props) {
 
   }, [pan]);
 
+  const reversePositionMinX = () => {
+    pan.current.setOffset({x: 0-x+5, y: offsetFromStart.current.y});
+    pan.current.setValue({x: 0, y: 0});
+  }
+  const reversePositionMaxX = () => {
+    pan.current.setOffset({x: maxX - 50 - x, y: offsetFromStart.current.y});
+    pan.current.setValue({x: 0, y: 0});
+  }
+
   const onPanResponderRelease = React.useCallback(
     (e, gestureState) => {
       isDragging.current = false;
+      const deviceWidth = Dimensions.get('window').width/2;
       if (onDragRelease) {
-        onDragRelease(e, gestureState, getBounds());
-        onRelease(e, true);
+        if(gestureState["moveX"]<=deviceWidth){
+          reversePositionMinX();
+        }else{
+          reversePositionMaxX();
+        }
       }
       if (!shouldReverse) {
         pan.current.flattenOffset();
